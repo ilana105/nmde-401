@@ -3,18 +3,17 @@
  * Sprint #1
  */
 
- let svg1;
- let shapes = [];
+ const svg = SVG('layers').size(1000, 600);
+ const shapes = [];
+ let index = 0;
+ let defaultSize = 100;
+ let img1Path = 'img/test1.jpg';
+ let img2Path = 'img/test2.jpg';
+ let isMouseDown = false;
 
 SVG.on(document, 'DOMContentLoaded', function() {
     if (SVG.supported) {
-        svg1 = SVG('layers').size(1000, 600)
-
-/*         var img1 = svg1.image('img/test1.jpg').loaded(function(loader) {
-            this.size(loader.width * 0.25, loader.height * 0.25)
-          }) */
- 
-        var img2 = svg1.image('img/test2.jpg').loaded(function(loader) {
+        var img2 = svg.image(img2Path).loaded(function(loader) {
             this.size(loader.width * 0.4, loader.height * 0.4)
           })
         img2.move(0,0)
@@ -25,15 +24,46 @@ SVG.on(document, 'DOMContentLoaded', function() {
             var x = event.clientX - dim.left;
             var y = event.clientY - dim.top;
             console.log("x: " + x + " y: " + y)
-            var circ = svg1.circle(100)
-            circ.fill(svg1.image('img/test1.jpg', 1000, 1000))
-            circ.move(x,y)
+            console.log("clientX: " + event.clientX + " clientY: " + event.clientY)
+
+            if (isMouseDown === true) {
+                var circ = svg.circle(defaultSize)
+                shapes.push(circ.fill(svg.image(img1Path).loaded(function(loader) {
+                  this.size(loader.width * 0.25, loader.height * 0.25)
+                })))
+                circ.move(event.clientX - 50, event.clientY - 50)
+                console.log(shapes);
+            }
         }
 
-          svg1.on('mousemove', mouseMove)
+        var mouseDown = function(event) {
+          isMouseDown = true;
+
+          var e = event.target;
+          var dim = e.getBoundingClientRect();
+          var x = event.clientX - dim.left;
+          var y = event.clientY - dim.top;
+
+          var circ = svg.circle(defaultSize)
+                shapes.push(circ.fill(svg.image(img1Path).loaded(function(loader) {
+                  this.size(loader.width, loader.height)
+                })))
+                circ.move(x - 50, y - 50)
+        }
+
+        var mouseUp = function() {
+          isMouseDown = false;
+        }
+
+        svg.on('mousedown', mouseDown)
+        svg.on('mousemove', mouseMove)
+        svg.on('mouseup', mouseUp)
+
     } else {
         alert('SVG not supported')
     }
 });
+
+
 
  
