@@ -1,0 +1,45 @@
+.wrapper{
+    padding: 0 5rem; 
+}
+
+.frame{
+    background-color:white;
+    height: 530px;
+    width: auto;
+    margin-top: 1rem;
+}
+
+.picture-box{
+   background: #F8F5F5;
+    height: 600px;
+    width: auto;
+    border-radius: 20px;
+    box-sizing: border-box;
+    box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.reset-btn{
+    text-align: center;
+    padding: 1px;
+    margin-top: 5px;
+    border: 1px solid #8D8D8D;
+    box-sizing: border-box;
+    border-radius: 10px;
+}
+
+.own-blue{
+    background: #3CA6B5;
+}
+
+.own-green{
+    background: #56CBA1;
+}
+
+.shuffle{
+    padding-top: 300px
+}
+
+.btn-custom{
+    box-shadow: -2px 2px 6px rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+}
