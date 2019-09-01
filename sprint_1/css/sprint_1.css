@@ -1,24 +1,24 @@
-.wrapper{
+.wrapper {
     padding: 0 5rem; 
 }
 
-.frame{
+.frame {
     background-color:white;
-    height: 530px;
-    width: auto;
+    height: 600px;
+    width: 1000px;
     margin-top: 1rem;
 }
 
-.picture-box{
+.picture-box {
    background: #F8F5F5;
-    height: 600px;
-    width: auto;
+    height: 670px;
+    width: 1000px;
     border-radius: 20px;
     box-sizing: border-box;
     box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.15);
 }
 
-.reset-btn{
+.reset-btn {
     text-align: center;
     padding: 1px;
     margin-top: 5px;
@@ -27,11 +27,11 @@
     border-radius: 10px;
 }
 
-.own-blue{
+.own-blue {
     background: #3CA6B5;
 }
 
-.own-green{
+.own-green {
     background: #56CBA1;
 }
 
