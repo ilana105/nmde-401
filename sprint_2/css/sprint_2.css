@@ -2,14 +2,39 @@
 
 body {
   font-family: "Muli", sans-serif;
+  background: #273445;
+  color: white;
+}
+.wrapper {
+  height: 100vh;
+  width: 100vw;
+  background-image: url("../assets/background.svg");
+  background-size: cover;
 }
 
 /* Parrot Icon Top Header */
 .header {
+  margin-left: 30px;
+  display: flex;
+  flex-direction: row;
+  color: white;
+  align-items: center;
 }
 .parrotIcon {
+  width: 87.12px;
+  height: 72px;
+  background-image: url("../assets/applogo.svg");
+  background-size: cover;
 }
 .parrotApp {
+  font-family: Muli;
+  font-style: normal;
+  font-weight: 800;
+  font-size: 36px;
+  line-height: 45px;
+  letter-spacing: 0.02em;
+  margin-left: 30px;
+  color: #ffffff;
 }
 
 /* Middle Section including three options the cisual and the controls */
@@ -19,6 +44,12 @@ body {
 .voiceOptions {
 }
 .waveformContainer {
+  font-family: Muli;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 47.2429px;
+  line-height: 59px;
+  text-align: center;
 }
 .controls {
 }
@@ -29,6 +60,7 @@ body {
   width: 120px;
   box-shadow: 0px 4.7381px 4.7381px rgba(0, 0, 0, 0.25);
   border-radius: 334.036px;
+  background-color: white;
 }
 .alienImage {
 }
