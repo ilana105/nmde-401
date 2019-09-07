@@ -1,39 +1,48 @@
 <!doctype html>
 <html>
-    <head>
-        <title>Sprint 2 - Prototype</title>
-         <!-- Required meta tags -->
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        <!-- Bootstrap CSS -->
-        <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> -->
-        <link rel="stylesheet" href="css/sprint_2.css">
+<head>
+    <title>Sprint 2 - Prototype</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script> -->
-        <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script> -->
-    </head>
-    
-    <body>
-        <div class="wrapper">
-            <header><h1>Sprint 2</h1></header>
+    <link rel="stylesheet" href="css/sprint_2.css">
 
-            <!-- Canvas to show audio -->
-            <canvas></canvas>
 
-            <audio></audio>
-            <form class="controls">
-                <div>
-                    <button data-playing="false" role="switch" aria-checked="false" id="playBtn" style="display:none;">
-                        <span>Play/Pause</span>
-                    </button>
-                    <button data-playing="false" aria-checked="false" id="recordBtn">
-                        <span>Record</span>
-                    </button>
-                </div>
-            </form>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <div class="parrotIcon"></div>
+            <div class="parrotApp">Parrot App</div>
         </div>
-    </body>
+        <div class="visualizerContainer">
+            <div class="voiceOptions">
+                <div class="characterOption">
+                    <div class="characterImage trollImage" id="troll"></div> troll
+                </div>
+                <div class="characterOption">
+                    <div class="characterImage robotImage" id="robot"></div> robot
+                </div>
+                <div class="characterOption">
+                    <div class="characterImage monsterImage" id="monster"></div> monster
+                </div>
+            </div>
 
-    <script src='./sprint_2.js'></script>
+            <div class="waveformContainer">click to start recording</div>
+            <div class="controls">
+                <div class="button playBtn" id="playBtn"></div>
+                <div class="button recordBtn" id="recordBtn"></div>
+            </div>
+        </div>
+        <canvas id='visualizer'></canvas>
+
+        <audio></audio>
+    </div>
+</body>
+
+<script src='./sprint_2.js'></script>
+
 </html>
