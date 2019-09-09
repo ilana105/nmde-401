@@ -5,7 +5,7 @@
     var currVoice, voiceOptions;
     var analyserNode, sourceNode;
     var compressor;
-    var canvas;
+    var canvas, waveformDisplay;
     var playBtn, recordBtn, deleteBtn;
     var currRecording, mediaRecorder, audioClips;
 
@@ -18,6 +18,7 @@
         sourceNode.connect(analyserNode);
         analyserNode.connect(audioCtx.destination);
 
+        waveformDisplay = document.querySelector('.waveformContainer');
         canvas = document.querySelector('canvas');
         audioCtx = canvas.getContext('2d');
 
@@ -95,32 +96,52 @@
         }
 
         recordBtn.addEventListener('click', function () {
-            count++;
+            if (currVoice) {
+                count++;
 
-            if (count % 2 === 1) {
-                console.log('started recording');
-                recordAudio.start;
-            }
+                if (count % 2 === 1) {
+                    console.log('started recording');
+                    recordBtn.style.backgroundImage = "url('assets/recording.svg')";
+                    recordAudio.start;
+                }
 
-            if (count % 2 === 0) {
-                console.log('stopped recording');
-                recordAudio.stop;
+                if (count % 2 === 0) {
+                    console.log('stopped recording');
+                    recordBtn.style.backgroundImage = "url('assets/startrecord.svg')";
+                    playBtn.style.display = "block";
+                    recordAudio.stop;
+                }
             }
         });
 
         playBtn.addEventListener('click', function () {
-            // check if context is in suspended state (autoplay policy)
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            if (currVoice) {
+                count++;
 
-            // play or pause track depending on state
-            if (this.dataset.playing === 'false') {
-                currRecording.play();
-                this.dataset.playing = 'true';
-            } else if (this.dataset.playing === 'true') {
-                currRecording.pause();
-                this.dataset.playing = 'false';
+                var elem = document.createElement("img");
+                elem.src = "assets/wavelength-nobackground.svg"
+                // check if context is in suspended state (autoplay policy)
+
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                // play or pause track depending on state
+                if (count % 2 === 1) {
+                    console.log('playing');
+                    // currRecording.play();
+                    // this.dataset.playing = 'true';
+                    playBtn.style.backgroundImage = "url('assets/pause.svg')";
+                    waveformDisplay.innerText = '';
+                    waveformDisplay.appendChild(elem);
+                } else if (count % 2 === 0) {
+                    console.log('paused');
+                    // currRecording.pause();
+                    // this.dataset.playing = 'false';
+                    playBtn.style.backgroundImage = "url('assets/playback.svg')";
+                    waveformDisplay.innerText = 'Click Play!';
+                    waveformDisplay.removeChild(elem);
+                }
             }
 
         }, false);
