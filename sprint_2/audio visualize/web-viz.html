@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Web Audio Viz</title>
+	<style>
+	body {
+		background: #eeeeee;
+		font-family: tahoma, verdana, sans serif;
+	}
+
+	canvas {
+		margin-left:10px;
+		margin-top:10px;
+		box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+		background: black;
+	}
+
+	#controls{
+		margin-left:10px;
+		margin-top:10px;
+  }
+  
+  section{
+  	margin-bottom:1em;
+  }
+  
+  #playButton{
+  	font-size: 1.2em;
+  	width: 3.5em;
+  }
+  
+	button[data-playing="yes"]:after{
+		content: "Pause";
+	}
+	
+	button[data-playing="no"]:after{
+		content: "Play";
+	}
+	
+	#fsButton{
+  	font-size: 1.2em;
+  	width: 6em;
+  }
+	</style>
+	<script>
+		"use strict";
+		
+		window.onload = init;
+						
+		// 1- path for music
+		const SOUND_PATH = Object.freeze({
+			sound1: "media/Alice.mp3",
+		});
+		
+		// 2 - elements on the page
+		let audioElement,canvasElement;
+		
+		// UI
+		let playButton;
+		
+		//  our canvas drawing context
+		let drawCtx
+		
+		//  our WebAudio context
+		let audioCtx;
+		
+		//  nodes that are part of our WebAudio audio routing graph
+		let sourceNode, analyserNode, gainNode;
+		
+		//  a typed array to hold the audio frequency data
+		const NUM_SAMPLES = 256;
+		// create a new array of 8-bit integers (0-255)
+		let audioData = new Uint8Array(NUM_SAMPLES/2); 
+		
+		
+		// FUNCTIONS
+		function init(){
+			setupWebaudio();
+			setupCanvas();
+			setupUI();
+			update();
+		}
+		
+		function setupWebaudio(){
+
+			const AudioContext = window.AudioContext || window.webkitAudioContext;
+			audioCtx = new AudioContext();
+			
+			audioElement = document.querySelector("audio");
+
+			//get audio
+			audioElement.src = SOUND_PATH.sound1;
+			
+			sourceNode = audioCtx.createMediaElementSource(audioElement);
+			
+			analyserNode = audioCtx.createAnalyser();
+			
+			// fft stands for Fast Fourier Transform
+			analyserNode.fftSize = NUM_SAMPLES;
+			
+			//create a gain (volume) node
+			gainNode = audioCtx.createGain();
+			gainNode.gain.value = 1;
+			
+			//connect the nodes - we now have an audio graph
+			sourceNode.connect(analyserNode);
+			analyserNode.connect(gainNode);
+			gainNode.connect(audioCtx.destination);
+		}
+		
+		function setupCanvas(){
+			canvasElement = document.querySelector('canvas');
+			drawCtx = canvasElement.getContext("2d");
+		}
+		
+		function setupUI(){
+			playButton = document.querySelector("#playButton");
+			playButton.onclick = e => {
+				console.log(`audioCtx.state = ${audioCtx.state}`);
+				
+				// check if context is in suspended state (autoplay policy)
+				if (audioCtx.state == "suspended") {
+					audioCtx.resume();
+				}
+
+				if (e.target.dataset.playing == "no") {
+					audioElement.play();
+					e.target.dataset.playing = "yes";
+				// if track is playing pause it
+				} else if (e.target.dataset.playing == "yes") {
+					audioElement.pause();
+					e.target.dataset.playing = "no";
+				}
+	
+			};
+			
+			let volumeSlider = document.querySelector("#volumeSlider");
+			volumeSlider.oninput = e => {
+				gainNode.gain.value = e.target.value;
+				volumeLabel.innerHTML = Math.round((e.target.value/2 * 100));
+			};
+			volumeSlider.dispatchEvent(new InputEvent("input"));
+					
+			
+			// if track ends
+			audioElement.onended =  _ => {
+				playButton.dataset.playing = "no";
+			};
+			
+			document.querySelector("#fsButton").onclick = _ =>{
+				requestFullscreen(canvasElement);
+			};
+			
+		}
+		
+		function update() { 
+			requestAnimationFrame(update);
+			
+			analyserNode.getByteFrequencyData(audioData);
+
+			drawCtx.clearRect(0,0,800,600);  
+			let barWidth = 4;
+			let barSpacing = 1;
+			let barHeight = 2;
+			let topSpacing = 50;
+			
+			// loop through the data and draw!
+
+			for(let i=0; i<audioData.length; i++) { 
+				drawCtx.fillStyle = 'rgba(255,255,255,1)'; 
+				drawCtx.fillRect(i*(barWidth+barSpacing),200,barWidth,barHeight);
+			}
+
+			for(let i=0; i<audioData.length; i++) { 
+				drawCtx.fillStyle = 'rgba(255,255,255,0.8)'; 
+				drawCtx.fillRect(i*(barWidth+barSpacing),200-(audioData[i])/2,barWidth,barHeight+(audioData[i]));
+			}
+
+			for(let i=0; i<audioData.length; i++) { 
+				drawCtx.fillStyle = 'rgba(169,169,169,0.7)'; 
+				drawCtx.fillRect(i*(barWidth+barSpacing),200-(audioData[i])/3,barWidth,barHeight+((audioData[i])/3)*2);
+			}
+
+
+			 
+		} 
+		
+		
+
+		// HELPER FUNCTIONS
+		function makeColor(red, green, blue, alpha){
+   			var color='rgba('+red+','+green+','+blue+', '+alpha+')';
+   			return color;
+		}
+		
+		function requestFullscreen(element) {
+			if (element.requestFullscreen) {
+			  element.requestFullscreen();
+			} else if (element.mozRequestFullscreen) {
+			  element.mozRequestFullscreen();
+			} else if (element.mozRequestFullScreen) { // camel-cased 'S' was changed to 's' in spec
+			  element.mozRequestFullScreen();
+			} else if (element.webkitRequestFullscreen) {
+			  element.webkitRequestFullscreen();
+			}
+			// .. and do nothing if the method is not supported
+		};
+	</script>
+</head>
+<body>
+	<canvas width="640" height="400"></canvas>
+	<div id="controls">
+		<audio></audio>
+		<section>
+		<button id="playButton" data-playing="no"></button>
+		<button id="fsButton">Full Screen</button>
+		</section>
+		<section>
+			Volume: <input type="range" id="volumeSlider" min="0" max="2" value="1" step="0.01">
+			<span id="volumeLabel">???</span>
+			</section>
+	</div>
+	
+</body>
+</html>
