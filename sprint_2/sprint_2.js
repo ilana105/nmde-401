@@ -7,7 +7,7 @@
     var compressor;
     var canvas;
     var playBtn, recordBtn, deleteBtn;
-    var currRecording;
+    var currRecording, mediaRecorder, audioClips;
 
     function init() {
         audioCtx = new (window.AudioContext || window.webkitAudioContext);
@@ -26,30 +26,85 @@
         voiceOptions = document.querySelector('.voiceOptions');
         // deleteBtn = document.querySelector('#deleteBtn');
 
+        audioClips = document.querySelector("audioClips");
+
         setUpEvents();
     }
 
     function setUpEvents() {
         let count = 0;
+        var chunks = [];
+        if (navigator.mediaDevices.getUserMedia) {
+            var constraints = { audio: true };
+
+            var onSuccess = function (stream) {
+                mediaRecorder = new MediaRecorder(stream);
+
+                recordBtn.addEventListener('click', function () {
+                    count++;
+
+                    if (count % 2 === 1) {
+                        console.log("recording now");
+                        mediaRecorder.start();
+                        console.log(mediaRecorder.state);
+                    }
+
+                    mediaRecorder.ondataavailable = function (e) {
+                        chunks.push(e.data);
+                    }
+
+                    if (count % 2 === 0) {
+                        console.log("stopped recording");
+                        mediaRecorder.stop();
+                        console.log(mediaRecorder.state);
+
+                        document.getElementById("playBtn").style.display = "block";
+
+                        mediaRecorder.onstop = function (e) {
+                            var clipName = currVoice + ((count / 2) + 1);
+                            var clipContainer = document.createElement('article');
+                            var clipLabel = document.createElement('p');
+                            var audio = document.createElement('audio');
+                            var deleteBtn;
+                            // add delete button
+
+                            clipContainer.classList.add('clip');
+                            audio.setAttribute('controls', '');
+
+                            clipLabel.innerHTML = clipName;
+
+                            clipContainer.appendChild(audio);
+                            clipContainer.appendChild(clipLabel);
+
+                            audioClips.appendChild(clipContainer);
+
+                            var blob = new Blob(chunks, { 'type': 'audio/ogg; codecs=opus' });
+                            chunks = [];
+                            var audioURL = window.URL.createObjectURL(blob);
+                            audio.src = audioURL;
+
+                            deleteBtn.onclick = function (e) {
+                                var evtTgt = e.target;
+                                evtTgt.parentNode.parentNode.removeCHild(evtTgt.parentNode);
+                            }
+
+                        }
+                    }
+                });
+            }
+        }
+
         recordBtn.addEventListener('click', function () {
             count++;
-            // const recorder;
 
             if (count % 2 === 1) {
-                console.log("recording now");
-                (async () => {
-                    currRecording = await recordAudio();
-                    currRecording.start();
-                })();
+                console.log('started recording');
+                recordAudio.start;
             }
 
             if (count % 2 === 0) {
-                console.log("stopped recording");
-                (async () => {
-                    currRecording = await currRecording.stop();
-                })();
-
-                document.getElementById("playBtn").setAttribute("style", "display: block");
+                console.log('stopped recording');
+                recordAudio.stop;
             }
         });
 
@@ -74,22 +129,22 @@
             playBtn.dataset.playing = 'false';
         }, false);
 
-        voiceOptions.addEventListener('click', function(e) {
+        voiceOptions.addEventListener('click', function (e) {
             if (!currVoice) {
                 currVoice = e.target.id;
             } else if (currVoice !== e.target.id) {
                 // returns the images back to the default settings when a new div is clicked/selected
                 switch (currVoice) {
                     case "troll":
-                        document.getElementById(currVoice).setAttribute("style", "border-color: #f30092;");
+                        document.getElementById(currVoice).style.borderColor = "#f30092";
                         document.getElementById(currVoice).style.backgroundImage = "url('assets/troll1.svg')";
                         break;
                     case "robot":
-                        document.getElementById(currVoice).setAttribute("style", "border-color: #7433ff;");
+                        document.getElementById(currVoice).style.borderColor = "#7433ff";
                         document.getElementById(currVoice).style.backgroundImage = "url('assets/robot1.svg')";
                         break;
                     case "monster":
-                        document.getElementById(currVoice).setAttribute("style", "border-color: #33f3ff;");
+                        document.getElementById(currVoice).style.borderColor = "#33f3ff";
                         document.getElementById(currVoice).style.backgroundImage = "url('assets/monster1.svg')";
                         break;
                     default:
@@ -99,18 +154,18 @@
                 currVoice = e.target.id;
             } else {
                 // returns the default settings when clicking the same div again
-                switch (currVoice) {
+                switch (e.target.id) {
                     case "troll":
-                        document.getElementById(currVoice).setAttribute("style", "border-color: #f30092;");
-                        document.getElementById(currVoice).style.backgroundImage = "url('assets/troll1.svg')";
+                        document.getElementById(currVoice).style.borderColor = "#f30092";
+                        document.getElementById(e.target.id).style.backgroundImage = "url('assets/troll1.svg')";
                         break;
                     case "robot":
-                        document.getElementById(currVoice).setAttribute("style", "border-color: #7433ff;");
-                        document.getElementById(currVoice).style.backgroundImage = "url('assets/robot1.svg')";
+                        document.getElementById(currVoice).style.borderColor = "#7433ff";
+                        document.getElementById(e.target.id).style.backgroundImage = "url('assets/robot1.svg')";
                         break;
                     case "monster":
-                        document.getElementById(currVoice).setAttribute("style", "border-color: #33f3ff;");
-                        document.getElementById(currVoice).style.backgroundImage = "url('assets/monster1.svg')";
+                        document.getElementById(currVoice).style.borderColor = "#33f3ff";
+                        document.getElementById(e.target.id).style.backgroundImage = "url('assets/monster1.svg')";
                         break;
                     default:
                         break;
@@ -120,7 +175,8 @@
             }
 
             // changes border color and background img when the div is selected
-            document.getElementById(currVoice).setAttribute("style", "border-color: #11bbff;");
+            document.getElementById(currVoice).style.borderColor = "#11bbff";
+
             switch (currVoice) {
                 case "troll":
                     document.getElementById(currVoice).style.backgroundImage = "url('assets/troll2.svg')";
@@ -136,6 +192,7 @@
             }
 
         });
+
     }
 
     const recordAudio = () => {
