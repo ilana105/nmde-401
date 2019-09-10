@@ -7,7 +7,7 @@
     var compressor;
     var canvas, waveformDisplay;
     var playBtn, recordBtn, deleteBtn;
-    var currRecording, mediaRecorder, audioClips;
+    var currRecording;
 
     function init() {
         audioCtx = new (window.AudioContext || window.webkitAudioContext);
@@ -25,75 +25,13 @@
         playBtn = document.querySelector('#playBtn');
         recordBtn = document.querySelector('#recordBtn');
         voiceOptions = document.querySelector('.voiceOptions');
-        // deleteBtn = document.querySelector('#deleteBtn');
-
-        audioClips = document.querySelector("audioClips");
+        deleteBtn = document.querySelector('#deleteBtn');
 
         setUpEvents();
     }
 
     function setUpEvents() {
         let count = 0;
-        var chunks = [];
-        if (navigator.mediaDevices.getUserMedia) {
-            var constraints = { audio: true };
-
-            var onSuccess = function (stream) {
-                mediaRecorder = new MediaRecorder(stream);
-
-                recordBtn.addEventListener('click', function () {
-                    count++;
-
-                    if (count % 2 === 1) {
-                        console.log("recording now");
-                        mediaRecorder.start();
-                        console.log(mediaRecorder.state);
-                    }
-
-                    mediaRecorder.ondataavailable = function (e) {
-                        chunks.push(e.data);
-                    }
-
-                    if (count % 2 === 0) {
-                        console.log("stopped recording");
-                        mediaRecorder.stop();
-                        console.log(mediaRecorder.state);
-
-                        document.getElementById("playBtn").style.display = "block";
-
-                        mediaRecorder.onstop = function (e) {
-                            var clipName = currVoice + ((count / 2) + 1);
-                            var clipContainer = document.createElement('article');
-                            var clipLabel = document.createElement('p');
-                            var audio = document.createElement('audio');
-                            var deleteBtn;
-                            // add delete button
-
-                            clipContainer.classList.add('clip');
-                            audio.setAttribute('controls', '');
-
-                            clipLabel.innerHTML = clipName;
-
-                            clipContainer.appendChild(audio);
-                            clipContainer.appendChild(clipLabel);
-
-                            audioClips.appendChild(clipContainer);
-
-                            var blob = new Blob(chunks, { 'type': 'audio/ogg; codecs=opus' });
-                            chunks = [];
-                            var audioURL = window.URL.createObjectURL(blob);
-                            audio.src = audioURL;
-
-                            deleteBtn.onclick = function (e) {
-                                var evtTgt = e.target;
-                                evtTgt.parentNode.parentNode.removeCHild(evtTgt.parentNode);
-                            }
-
-                        }
-                    }
-                });
-            }
-        }
 
         recordBtn.addEventListener('click', function () {
             if (currVoice) {
@@ -101,25 +39,34 @@
 
                 if (count % 2 === 1) {
                     console.log('started recording');
+                    console.log(recordAudio());
                     recordBtn.style.backgroundImage = "url('assets/recording.svg')";
-                    recordAudio.start;
+                    recordAudio().then(function(record) {
+                        record.start();
+                    });
+                    recordAudio();
                 }
 
                 if (count % 2 === 0) {
                     console.log('stopped recording');
+                    console.log(recordAudio());
+                    recordAudio().then(function(record) {
+                        record.stop();
+                    });
                     recordBtn.style.backgroundImage = "url('assets/startrecord.svg')";
                     playBtn.style.display = "block";
-                    recordAudio.stop;
+                    deleteBtn.style.display = "block";
                 }
             }
         });
+
+        var elem = document.createElement("img");
+        elem.src = "assets/wavelength-nobackground.svg"
 
         playBtn.addEventListener('click', function () {
             if (currVoice) {
                 count++;
 
-                var elem = document.createElement("img");
-                elem.src = "assets/wavelength-nobackground.svg"
                 // check if context is in suspended state (autoplay policy)
 
                 if (audioCtx.state === 'suspended') {
@@ -129,15 +76,23 @@
                 // play or pause track depending on state
                 if (count % 2 === 1) {
                     console.log('playing');
-                    // currRecording.play();
-                    // this.dataset.playing = 'true';
+                    recordAudio().then(function(record) {
+                        record.stop().then(function(audio) {
+                            audio.play();
+                        });
+                    });
+
                     playBtn.style.backgroundImage = "url('assets/pause.svg')";
                     waveformDisplay.innerText = '';
                     waveformDisplay.appendChild(elem);
                 } else if (count % 2 === 0) {
                     console.log('paused');
-                    // currRecording.pause();
-                    // this.dataset.playing = 'false';
+                    recordAudio().then(function(record) {
+                        record.stop().then(function(audio) {
+                            audio.play();
+                        });
+                    });
+
                     playBtn.style.backgroundImage = "url('assets/playback.svg')";
                     waveformDisplay.innerText = 'Click Play!';
                     waveformDisplay.removeChild(elem);
@@ -146,9 +101,13 @@
 
         }, false);
 
-        audioElement.addEventListener('ended', () => {
-            playBtn.dataset.playing = 'false';
-        }, false);
+        deleteBtn.addEventListener('click', function() {
+            playBtn.style.display = "none";
+            deleteBtn.style.display = "none";
+            if (elem) {
+                waveformDisplay.removeChild(elem);
+            }
+        });
 
         voiceOptions.addEventListener('click', function (e) {
             if (!currVoice) {
@@ -218,7 +177,7 @@
 
     const recordAudio = () => {
         return new Promise(resolve => {
-            navigator.mediaDevices.getUserMedia({ audio: true })
+            navigator.mediaDevices.getUserMedia({ audio: true, video: false })
                 .then(stream => {
                     const mediaRecorder = new MediaRecorder(stream);
                     const audioChunks = [];
@@ -255,6 +214,3 @@
 
     window.addEventListener("load", init);
 }());
-
-//https://github.com/mdn/web-dictaphone/blob/gh-pages/scripts/app.js
-//https://mdn.github.io/web-dictaphone/
