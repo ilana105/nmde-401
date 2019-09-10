@@ -60,15 +60,13 @@
             }
         });
 
-        var elem = document.createElement("img");
-        elem.src = "assets/wavelength-nobackground.svg"
-
         playBtn.addEventListener('click', function () {
             if (currVoice) {
                 count++;
+                var elem = document.createElement("img");
+                elem.src = "assets/wavelength-nobackground.svg"
 
                 // check if context is in suspended state (autoplay policy)
-
                 if (audioCtx.state === 'suspended') {
                     audioCtx.resume();
                 }
@@ -82,9 +80,9 @@
                         });
                     });
 
+                    waveformDisplay.appendChild(elem);
                     playBtn.style.backgroundImage = "url('assets/pause.svg')";
                     waveformDisplay.innerText = '';
-                    waveformDisplay.appendChild(elem);
                 } else if (count % 2 === 0) {
                     console.log('paused');
                     recordAudio().then(function(record) {
